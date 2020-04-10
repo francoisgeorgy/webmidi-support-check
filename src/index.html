@@ -1,0 +1,225 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Test WebMIDI in your browser - By StudioCode.dev</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="author" content="https://studiocode.dev">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <meta name="description" content="Test WebMIDI in your browser - By StudioCode.dev">
+    <meta name="twitter:card" content="summary"/>
+    <meta name="twitter:creator" content="@francoisgeorgy"/>
+    <meta name="twitter:image:alt" content="Test WebMIDI in your browser - By StudioCode.dev" />
+    <meta property="og:url" content="https://studiocode.dev{{ page.url }}"/>
+    <meta property="og:title" content="Test WebMIDI in your browser"/>
+    <meta property="og:description" content="Test WebMIDI in your browser"/>
+    <meta property="og:image" content=""/>
+    <style>
+        html {
+            font-family: sans-serif;
+            font-size: large;
+        }
+        body {
+            margin: 0;
+            padding: 3rem;
+        }
+        h1 {
+            margin-top: 0;
+        }
+        #about {
+            float:right;
+        }
+        .hide {
+            display: none;
+        }
+        div.infos > div {
+            margin: 0.5rem 0;
+        }
+        ul > li {
+            margin-bottom: 0.5rem;
+        }
+        #messages {
+            font-family: monospace;
+        }
+        .success {
+            color: green;
+        }
+        .failure {
+            color: red;
+        }
+        .help {
+            margin: 2rem 0;
+            color: gray;
+            line-height: 150%;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="about">
+        Made by <a href="https://studiocode.dev/">StudioCode.dev</a>
+    </div>
+
+    <h1>Test WebMIDI in your browser.</h1>
+
+    <div id="info" class="infos"></div>
+
+    <div id="details" class="hide">
+        <h3>Inputs:</h3>
+        <div id="inputs" class="infos"></div>
+
+        <h3>Outputs:</h3>
+        <div id="outputs" class="infos"></div>
+
+        <div class="help">
+            The lists above must automatically refresh when you connect/disconnect a MIDI device. <br/>
+            If you don't see your device listed above, try to refresh this page (Mac: Cmd+R, Win: Ctrl+R or F5).
+        </div>
+
+        <!--
+        Les listes ci-dessus doivent s'actualiser automatiquement lorsque vous connectez / déconnectez une interface MIDI.
+        Si vous ne voyez pas votre interface répertoriée ci-dessus, essayez de rafraîchir cette page (Mac: Cmd + R, Win: Ctrl + R ou F5).
+        -->
+
+        <h3>MIDI messages:</h3>
+        <div id="messages" class=""></div>
+    </div>
+
+    <div id="unsupported" class="hide">
+        <p>WebMIDI is supported in Chrome, Opera and Edge under Windows, OS X and Linux.</p>
+        <p>It may be supported and working in the same browsers under Android or iOS.</p>
+        <p>The followings links will give you more information:</p>
+        <ul>
+            <li><a href="https://developer.mozilla.org/en-US/docs/Web/API/MIDIAccess#Browser_compatibility">Official WebMIDI compatibility table</a></li>
+            <li><a href="https://caniuse.com/#feat=midi">List of the webmidi support by browsers in caniuse.com</a></li>
+        </ul>
+    </div>
+
+    <script>
+
+        var MIDI = null;
+
+        function padZero(str, len, char) {
+            let s = "";
+            let c = char || "0";
+            let n = (len || 2) - str.length;
+            while (s.length < n) s += c;
+            return s + str;
+        }
+
+        function h(v) {
+            return (v === null || v === undefined) ? "" : padZero(v.toString(16).toUpperCase(), 2);
+        }
+
+        function hs(data) {
+            return (data === null || data === undefined) ? "" : (Array.from(data).map(n => h(n))).join(" ");    // Array.from() is necessary to get a non-typed array
+        }
+
+        function print(what, where, cls, reverse) {
+            if (reverse) {
+                document.getElementById(where).insertAdjacentHTML("afterbegin", "<div class='" + (cls || "") + "'>" + what + "</div>");
+            } else {
+                document.getElementById(where).insertAdjacentHTML("beforeend", "<div class='" + (cls || "") + "'>" + what + "</div>");
+            }
+        }
+
+        function success(msg) {
+            print("&#10004; " + msg, "info", "success");
+        }
+
+        function failure(msg) {
+            print("&#10008; " + msg, "info", "failure");
+        }
+
+        function clearContent(elementId) {
+            document.getElementById(elementId).innerHTML = "";
+        }
+
+        function listInputsAndOutputs() {
+            if (MIDI === null) return;
+            clearContent("inputs");
+            clearContent("outputs");
+            MIDI.inputs.forEach(function(port, key) {
+                // console.log(port);
+                print(port.manufacturer + " " + port.name, "inputs");
+            });
+            MIDI.outputs.forEach(function(port, key) {
+                print(port.manufacturer + " " + port.name, "outputs");
+            });
+        }
+
+        function connectInputs() {
+            if (MIDI === null) return;
+            MIDI.inputs.forEach(function(port, key) {
+                port.onmidimessage = onMidiMessage;
+            });
+        }
+
+        function onMidiMessage(message) {
+            if (message instanceof MIDIMessageEvent) {
+                // console.log("midi message", message);
+                let bytes = message.data;       // type is Uint8Array
+                let channel = bytes[0] & 0x0F;  // MIDI channel
+                let type = bytes[0] & 0xF0;     // MIDI event type
+                let port = message.currentTarget;
+                print(" data: [" + hs(bytes) + "] - channel: " + (channel+1) + " - source: " + port.name, "messages", null, true);
+            }
+        }
+
+        function onStateChange(event) {
+            const p = event.port;
+            if (p.state === "connected") {
+                if (p.type === "input") {
+                    if (!p.onmidimessage) {
+                        p.onmidimessage = onMidiMessage;
+                    }
+                }
+            } else if (p.state === "disconnected") {
+                if (p.type === "input") {
+                    if (p.onmidimessage) {
+                        p.onmidimessage = null;
+                    }
+                }
+            }
+            listInputsAndOutputs();
+        }
+
+        function onMIDISuccess(midiAccess) {
+            success("Your browser supports WebMIDI.");
+            document.getElementById("details").classList.remove('hide');
+            MIDI = midiAccess;
+            MIDI.onstatechange = onStateChange;
+            connectInputs();
+            listInputsAndOutputs();
+        }
+
+        function onMIDIFailure(msg) {
+            success("Your browser supports WebMIDI.");
+            failure("Access to WebMIDI is denied. Check your browser settings.")
+        }
+
+        function test() {
+            if (navigator.requestMIDIAccess) {
+                navigator.requestMIDIAccess({sysex:false}).then(onMIDISuccess, onMIDIFailure);
+            } else {
+                failure("Your browser does not support WebMIDI.");
+                document.getElementById("unsupported").classList.remove('hide');
+            }
+        }
+
+        function whenReadyDo(callback) {
+            if (document.readyState !== "loading") {
+                callback();
+            } else {
+                document.addEventListener("DOMContentLoaded", callback);
+            }
+        }
+
+        whenReadyDo(test);
+
+    </script>
+</body>
+</html>
