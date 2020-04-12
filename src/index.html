@@ -26,14 +26,26 @@
             margin: 0;
             padding: 3rem;
         }
+        header {
+            position: relative;
+        }
         h1 {
             margin-top: 0;
         }
         #about {
-            float:right;
+            position: absolute;
+            right: 0;
+            bottom: 0.2rem;
+        }
+        #help {
+            float: right;
         }
         .hide {
             display: none;
+        }
+        #support {
+            font-size: larger;
+            margin: 2rem 0;
         }
         div.infos > div {
             margin: 0.5rem 0;
@@ -58,32 +70,39 @@
     </style>
 </head>
 <body>
-    <div id="about">
-        Made by <a href="https://studiocode.dev/">StudioCode.dev</a>
-    </div>
-    <h1>Test WebMIDI support in your browser.</h1>
-    <div id="info" class="infos"></div>
-    <div id="details" class="hide">
-        <h3>Inputs:</h3>
-        <div id="inputs" class="infos"></div>
-        <h3>Outputs:</h3>
-        <div id="outputs" class="infos"></div>
-        <div class="help">
-            The lists above must automatically refresh when you connect/disconnect a MIDI device. <br/>
-            If you don't see your device listed above, try to refresh this page (Mac: Cmd+R, Win: Ctrl+R or F5).
+    <header>
+        <div id="about">
+            Made by <a href="https://studiocode.dev/">StudioCode.dev</a>
         </div>
-        <h3>MIDI messages:</h3>
-        <div id="messages" class=""></div>
-    </div>
-    <div id="unsupported" class="hide">
-        <p>WebMIDI is supported in Chrome, Opera and Edge under Windows, OS X and Linux.</p>
-        <p>It may be supported and working in the same browsers under Android or iOS.</p>
-        <p>The followings links will give you more information:</p>
-        <ul>
-            <li><a href="https://developer.mozilla.org/en-US/docs/Web/API/MIDIAccess#Browser_compatibility">Official WebMIDI compatibility table</a></li>
-            <li><a href="https://caniuse.com/#feat=midi">List of the webmidi support by browsers in caniuse.com</a></li>
-        </ul>
-    </div>
+        <h1>Test WebMIDI support in your browser.</h1>
+    </header>
+    <main>
+        <div id="help">
+            <a href="help.html">Help</a>
+        </div>
+        <div id="support" class="infos"></div>
+        <div id="details" class="hide">
+            <h3>Inputs:</h3>
+            <div id="inputs" class="infos"></div>
+            <h3>Outputs:</h3>
+            <div id="outputs" class="infos"></div>
+            <div class="help">
+                The lists above must automatically refresh when you connect/disconnect a MIDI device. <br/>
+                If you don't see your device listed above, try to refresh this page (Mac: Cmd+R, Win: Ctrl+R or F5).
+            </div>
+            <h3>MIDI messages:</h3>
+            <div id="messages" class=""></div>
+        </div>
+        <div id="unsupported" class="hide">
+            <p>WebMIDI is supported in Chrome, Opera and Edge under Windows, OS X and Linux.</p>
+            <p>It may be supported and working in the same browsers under Android or iOS.</p>
+            <p>The followings links will give you more information:</p>
+            <ul>
+                <li><a href="https://developer.mozilla.org/en-US/docs/Web/API/MIDIAccess#Browser_compatibility">Official WebMIDI compatibility table</a></li>
+                <li><a href="https://caniuse.com/#feat=midi">List of the webmidi support by browsers in caniuse.com</a></li>
+            </ul>
+        </div>
+    </main>
     <script>
 
         var MIDI = null;
@@ -109,11 +128,11 @@
         }
 
         function success(msg) {
-            print("&#10004; " + msg, "info", "success");
+            print("&#10004; " + msg, "support", "success");
         }
 
         function failure(msg) {
-            print("&#10008; " + msg, "info", "failure");
+            print("&#10008; " + msg, "support", "failure");
         }
 
         function clearContent(elementId) {
