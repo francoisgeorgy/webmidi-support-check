@@ -101,7 +101,7 @@
         }
 
         function hs(data) {
-            return (data === null || data === undefined) ? "" : (Array.from(data).map(n => h(n))).join(" ");
+            return (data === null || data === undefined) ? "" : (Array.from(data).map(h)).join(" ");
         }
 
         function print(what, where, cls, reverse) {
