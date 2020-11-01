@@ -62,10 +62,15 @@
         .failure {
             color: red;
         }
+        .light {
+            color: gray;
+        }
         .help {
             margin: 2rem 0;
-            color: gray;
             line-height: 150%;
+        }
+        .bold {
+            font-weight: bold;
         }
     </style>
 </head>
@@ -80,28 +85,40 @@
         <div id="help">
             <a href="help.html">Help</a>
         </div>
+
         <div id="support" class="infos"></div>
+
         <div id="details" class="hide">
             <h3>Inputs:</h3>
             <div id="inputs" class="infos"></div>
             <h3>Outputs:</h3>
             <div id="outputs" class="infos"></div>
-            <div class="help">
+            <div class="help light">
                 The lists above must automatically refresh when you connect/disconnect a MIDI device. <br/>
                 If you don't see your device listed above, try to refresh this page (Mac: Cmd+R, Win: Ctrl+R or F5).
             </div>
             <h3>MIDI messages:</h3>
+            <div class="light">If you have a MIDI controller connected, any message sent by this controller will be listed here.</div>
             <div id="messages" class=""></div>
         </div>
+
         <div id="unsupported" class="hide">
-            <p>WebMIDI is supported in Chrome, Opera and Edge 79+ under Windows, OS X and Linux.</p>
-            <p>It may be supported and working in the same browsers under Android or iOS.</p>
-            <p>The followings links will give you more information:</p>
+            <h3>WebMIDI is supported by the following browsers:</h3>
+            <ul>
+                <li>Google <span class="bold">Chrome</span> (v43 and above)</li>
+                <li><span class="bold">Opera</span> on PC and on mobile devices (v30 and above)</li>
+                <li>Microsoft <span class="bold">Edge</span> (v79 and above)</li>
+                <li>Android Browser (Chromium) (v81 and above)</li>
+                <li>Baidu Browser (v7.12 and above)</li>
+            </ul>
+            <p>The above list is a summary as of November 1st, 2020.</p>
+            <h3>For a complete overview of the current WebMIDI support, see:</h3>
             <ul>
                 <li><a href="https://developer.mozilla.org/en-US/docs/Web/API/MIDIAccess#Browser_compatibility">Official WebMIDI compatibility table</a></li>
                 <li><a href="https://caniuse.com/#feat=midi">List of the webmidi support by browsers in caniuse.com</a></li>
             </ul>
         </div>
+
     </main>
     <script>
 
